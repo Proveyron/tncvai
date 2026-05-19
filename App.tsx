@@ -82,11 +82,12 @@ function App(): React.JSX.Element {
           <View style={styles.sliderContainer}>
             <Text style={styles.label}>Screen Dimmer</Text>
             <Slider
-              style={styles.slider}
+              style={{width: 250, height: 40, marginTop: 10}}
               minimumValue={0}
               maximumValue={0.9}
-              minimumTrackTintColor="#000000"
-              maximumTrackTintColor="#000000"
+              minimumTrackTintColor="#81b0ff"
+              maximumTrackTintColor="#d3d3d3"
+              thumbTintColor="#f5dd4b"
               value={dimIntensity}
               onValueChange={setDimIntensity}
             />
