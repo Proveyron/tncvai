@@ -177,7 +177,8 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 20,
   },
   content: {
     flex: 1,
@@ -219,7 +220,6 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   sliderContainer: {
-    marginTop: 40,
     width: '100%',
     alignItems: 'center',
     backgroundColor: '#fff',
@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    marginBottom: 40,
   },
   slider: {
     width: 200,
