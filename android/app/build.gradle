@@ -75,6 +75,16 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.callrejector"
+
+    splits {
+        abi {
+            reset()
+            enable true
+            universalApk false
+            def architectures = project.hasProperty("reactNativeArchitectures") ? project.getProperty("reactNativeArchitectures") : "armeabi-v7a,arm64-v8a,x86,x86_64"
+            include (*architectures.split(','))
+        }
+    }
     defaultConfig {
         applicationId "com.callrejector"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -107,6 +117,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig project.hasProperty('MYAPP_RELEASE_STORE_FILE') ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
+            shrinkResources enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
