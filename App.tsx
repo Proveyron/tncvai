@@ -1,117 +1,130 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
+  Switch,
+  NativeModules,
+  Alert,
+  Platform,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const {CallScreening} = NativeModules;
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [isEnabled, setIsEnabled] = useState(false);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      CallScreening.isRejectionEnabled().then((enabled: boolean) => {
+        setIsEnabled(enabled);
+      });
+    }
+  }, []);
+
+  const toggleSwitch = async () => {
+    if (Platform.OS !== 'android') {
+      Alert.alert('Not Supported', 'This app only works on Android.');
+      return;
+    }
+
+    const newValue = !isEnabled;
+
+    if (newValue) {
+      try {
+        const granted = await CallScreening.requestRole();
+        if (granted) {
+          CallScreening.toggleRejection(true);
+          setIsEnabled(true);
+        } else {
+          Alert.alert(
+            'Permission Required',
+            'You must set this app as the default Call Screening app to reject calls.',
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error', 'An error occurred while requesting permissions.');
+      }
+    } else {
+      CallScreening.toggleRejection(false);
+      setIsEnabled(false);
+    }
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.content}>
+        <Text style={styles.title}>Call Rejector</Text>
+        <Text style={styles.description}>
+          When enabled, all incoming calls will be automatically rejected.
+        </Text>
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Reject All Calls</Text>
+          <Switch
+            trackColor={{false: '#767577', true: '#81b0ff'}}
+            thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+          />
         </View>
-      </ScrollView>
+        <Text style={styles.status}>
+          Status: {isEnabled ? 'ENABLED' : 'DISABLED'}
+        </Text>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  sectionDescription: {
-    marginTop: 8,
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+  },
+  description: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#666',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  label: {
     fontSize: 18,
-    fontWeight: '400',
+    marginRight: 15,
+    color: '#333',
   },
-  highlight: {
-    fontWeight: '700',
+  status: {
+    marginTop: 20,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#888',
   },
 });
 
