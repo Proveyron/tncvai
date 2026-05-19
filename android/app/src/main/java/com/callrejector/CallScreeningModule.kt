@@ -35,6 +35,21 @@ class CallScreeningModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun toggleRejectNonContacts(enabled: Boolean) {
+        val sharedPref = reactApplicationContext.getSharedPreferences("CallRejectorPrefs", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putBoolean("rejectNonContactsEnabled", enabled)
+            apply()
+        }
+    }
+
+    @ReactMethod
+    fun isRejectNonContactsEnabled(promise: Promise) {
+        val sharedPref = reactApplicationContext.getSharedPreferences("CallRejectorPrefs", Context.MODE_PRIVATE)
+        promise.resolve(sharedPref.getBoolean("rejectNonContactsEnabled", false))
+    }
+
+    @ReactMethod
     fun requestRole(promise: Promise) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val roleManager = reactApplicationContext.getSystemService(Context.ROLE_SERVICE) as RoleManager
