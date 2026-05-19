@@ -18,7 +18,7 @@ const {CallScreening} = NativeModules;
 function App(): React.JSX.Element {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isNonContactsEnabled, setIsNonContactsEnabled] = useState(false);
-  const [dimIntensity, setDimIntensity] = useState(0);
+  const [dimIntensity, setDimIntensity] = useState(100);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -149,11 +149,11 @@ function App(): React.JSX.Element {
           </Text>
 
           <View style={styles.sliderContainer}>
-            <Text style={styles.label}>Screen Dimmer</Text>
+            <Text style={styles.label}>Screen Dimmer ({Math.round(dimIntensity)}%)</Text>
             <Slider
-              style={{width: 250, height: 40, marginTop: 10}}
+              style={{width: 250, height: 40, marginTop: 10, alignSelf: 'center'}}
               minimumValue={0}
-              maximumValue={0.9}
+              maximumValue={100}
               minimumTrackTintColor="#81b0ff"
               maximumTrackTintColor="#d3d3d3"
               thumbTintColor="#f5dd4b"
@@ -167,7 +167,7 @@ function App(): React.JSX.Element {
         pointerEvents="none"
         style={[
           styles.overlay,
-          {backgroundColor: `rgba(0, 0, 0, ${dimIntensity})`},
+          {backgroundColor: `rgba(0, 0, 0, ${Math.min(1 - (dimIntensity / 100), 0.95)})`},
         ]}
       />
     </>
